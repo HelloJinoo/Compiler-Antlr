@@ -15,11 +15,9 @@ public class UcodeGenterator {
 		ParseTree tree = parser.program();
 		
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new UcodeGenListener(), tree);
+		walker.walk(new OptimiztionCode(), tree);
 
-		BufferedWriter fw = new BufferedWriter(new FileWriter("[01][201402415][장진우][03].uco"));
-		fw.write(UcodeGenListener.result);
-		fw.close();
+		//BufferedWriter fw = new BufferedWriter(new FileWriter("[01][201402415][장진우][03].uco"));
 		
 	}
 }

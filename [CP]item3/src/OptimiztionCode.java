@@ -7,6 +7,7 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 
+
 public class OptimiztionCode extends MiniGoBaseListener{
 	ParseTreeProperty<String> newTexts = new ParseTreeProperty<>();
 	int indentCount = 0;
@@ -143,8 +144,7 @@ public class OptimiztionCode extends MiniGoBaseListener{
 		}
 		System.out.println();
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(
-					"optimizedUcode.uco"));
+			BufferedWriter writer = new BufferedWriter(new FileWriter("optimizedGo.go"));
 			while (ctx.decl(i) != null) {
 				System.out.println(newTexts.get(ctx.decl(i)));
 				writer.write(newTexts.get(ctx.decl(i)));
@@ -157,29 +157,59 @@ public class OptimiztionCode extends MiniGoBaseListener{
 	}
 	
 	@Override
+	public void exitDecl(MiniGoParser.DeclContext ctx) {
+		if (ctx.getChild(0) == ctx.var_decl()) { // var_decl
+			newTexts.put(ctx, newTexts.get(ctx.var_decl()));
+		} else { // fun_decl
+			newTexts.put(ctx, newTexts.get(ctx.fun_decl()));
+		}
+	}
+	@Override
+	public void enterVar_decl(MiniGoParser.Var_declContext ctx) {
+		/* symbol_table에 변수 넣어주기 */
+			String varName = ctx.getChild(1).getText();
+			if(ctx.getChildCount() == 3) {	//VAR IDENT type_spec
+				declare_Table(varName, location);
+			}
+			else if( ctx.getChildCount() == 5) {	//VAR IDENT ',' IDENT type_spec
+				declare_Table(varName, location);
+				varName = ctx.getChild(3).getText();
+				declare_Table(varName, location);
+			}
+			else if( ctx.getChildCount() == 6) {	//VAR IDENT '[' LITERAL ']' type_spec
+				declare_Table(varName, location);
+			}
+	}
+	
+	@Override
+	public void exitVar_decl(MiniGoParser.Var_declContext ctx) {
+		if (ctx.getChildCount() == 3) { //VAR IDENT type_spec
+			newTexts.put(ctx,indent()+ctx.getChild(0).getText()+" " +ctx.getChild(1).getText() +" "+ newTexts.get(ctx.type_spec()));
+		} else if (ctx.getChildCount() == 5) { //VAR IDENT ',' IDENT type_spec
+			String s1 = ctx.getChild(1).getText();
+			String s2 = ctx.getChild(3).getText();
+			newTexts.put(ctx,indent()+ctx.getChild(0).getText()+" "+ s1 +" " +newTexts.get(ctx.type_spec()) + " \n"
+			+indent()+ctx.getChild(0).getText()+" "+s2 +" "+ newTexts.get(ctx.type_spec()) );
+		} else { //VAR IDENT '[' LITERAL ']' type_spec
+		newTexts.put(ctx,indent()+ ctx.getChild(0).getText()+" "+ctx.getChild(1).getText() + "["+ ctx.getChild(3) + "] " + newTexts.get(ctx.type_spec()));
+		}
+	}
+	@Override
+	public void exitType_spec(MiniGoParser.Type_specContext ctx) {
+		if(ctx.getChild(0) == null) {
+			newTexts.put(ctx,"");
+		}
+		else {
+		newTexts.put(ctx, ctx.getChild(0).getText());
+		}
+	}
+	
+	@Override
 	public void exitExpr(MiniGoParser.ExprContext ctx) {
 	
 		
 	}
 	
-	@Override
-	public void exitDecl(MiniGoParser.DeclContext ctx) {
-		// TODO Auto-generated method stub
-		super.exitDecl(ctx);
-	}
-	@Override
-	public void enterVar_decl(MiniGoParser.Var_declContext ctx) {
-		
-	}
-	
-	@Override
-	public void exitVar_decl(MiniGoParser.Var_declContext ctx) {
-		
-	}
-	@Override
-	public void exitType_spec(MiniGoParser.Type_specContext ctx) {
-		
-	}
 	@Override
 	public void enterFun_decl(MiniGoParser.Fun_declContext ctx) {
 		
