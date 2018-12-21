@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+
 public class OptimiztionCode extends MiniGoBaseListener{
 	ParseTreeProperty<String> newTexts = new ParseTreeProperty<>();
 	int indentCount = 0;
@@ -75,6 +76,99 @@ public class OptimiztionCode extends MiniGoBaseListener{
 			this.rhs = rhs;
 			this.location = location;
 		}
+	}
+	
+	@Override
+	public void exitExpr(MiniGoParser.ExprContext ctx) {
+	
+		
+	}
+	
+	@Override
+	public void exitProgram(MiniGoParser.ProgramContext ctx) {
+		
+	}
+	
+	@Override
+	public void exitDecl(MiniGoParser.DeclContext ctx) {
+		// TODO Auto-generated method stub
+		super.exitDecl(ctx);
+	}
+	@Override
+	public void enterVar_decl(MiniGoParser.Var_declContext ctx) {
+		
+	}
+	
+	@Override
+	public void exitVar_decl(MiniGoParser.Var_declContext ctx) {
+		
+	}
+	@Override
+	public void exitType_spec(MiniGoParser.Type_specContext ctx) {
+		
+	}
+	@Override
+	public void enterFun_decl(MiniGoParser.Fun_declContext ctx) {
+		
+	}
+	
+	@Override
+	public void exitFun_decl(MiniGoParser.Fun_declContext ctx) {
+		
+	}
+	@Override
+	public void exitParams(MiniGoParser.ParamsContext ctx) {
+		
+	}
+	@Override
+	public void enterParam(MiniGoParser.ParamContext ctx) {
+	
+	}
+	
+	@Override
+	public void exitParam(MiniGoParser.ParamContext ctx) {
+	
+	
+	}
+	@Override
+	public void exitStmt(MiniGoParser.StmtContext ctx) {
+	}
+	
+	@Override
+	public void exitExpr_stmt(MiniGoParser.Expr_stmtContext ctx) {
+		
+	}
+	@Override
+	public void exitFor_stmt(MiniGoParser.For_stmtContext ctx) {
+		
+	}
+	@Override
+	public void enterCompound_stmt(MiniGoParser.Compound_stmtContext ctx) {
+	
+	}
+	@Override
+	public void exitCompound_stmt(MiniGoParser.Compound_stmtContext ctx) {
+		
+	}
+	@Override
+	public void enterLocal_decl(MiniGoParser.Local_declContext ctx) {
+		
+	}
+	@Override
+	public void exitLocal_decl(MiniGoParser.Local_declContext ctx) {
+	}
+	
+	@Override
+	public void exitIf_stmt(MiniGoParser.If_stmtContext ctx) {
+		
+	}
+	@Override
+	public void exitReturn_stmt(MiniGoParser.Return_stmtContext ctx) {
+		
+	}
+	@Override
+	public void exitArgs(MiniGoParser.ArgsContext ctx) {
+		
 	}
 	
 }
