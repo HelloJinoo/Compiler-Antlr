@@ -49,12 +49,31 @@ public class OptimiztionCode extends MiniGoBaseListener{
 			if (cmp_var.lhs.equals(lhs) && cmp_var.location.equals(location)) {
 				return symbol_table.get(i);
 			} else {
-				if (!location.equals("global")) { // local이면 local에 없을 때
-					// global에서도 찾아보기
+				if (!location.equals("global")) {// global에서도 찾아보기
 					if (cmp_var.lhs.equals(lhs)
 							&& cmp_var.location.equals("global"))
 						if (symbol_table.get(i) != null)
 							return symbol_table.get(i);
+				}
+			}
+		}
+		return null;
+	}
+	
+	private Variable lookupRhs_Table(String rhs, String location) {
+		for (int i = symbol_table.size() - 1; i >= 0; i--) {
+			Variable cmp_var = symbol_table.get(i);
+			if (cmp_var.rhs != null) {
+				if (cmp_var.rhs.equals(rhs)
+						&& cmp_var.location.equals(location))
+					return symbol_table.get(i);
+				else {
+					if (!location.equals("global")) {// global에서도 찾아보기
+						if (cmp_var.rhs.equals(rhs)
+								&& cmp_var.location.equals("global"))
+							if (symbol_table.get(i) != null)
+								return symbol_table.get(i);
+					}
 				}
 			}
 		}
@@ -77,15 +96,69 @@ public class OptimiztionCode extends MiniGoBaseListener{
 			this.location = location;
 		}
 	}
+	private void declare_Table(String lhs, String location) {
+		if (lookup_Table(lhs, location) == null) { // 테이블에 똑같은 변수가 없으면 insert
+			Variable newVar = new Variable(lhs, location);
+			symbol_table.add(newVar);
+		}
+	}
+	private void define_Table(String lhs, String rhs, String location) {
+		if (lookup_Table(lhs, location) == null) { // 테이블에 똑같은 변수가 없으면 insert
+			Variable newVar = new Variable(lhs, rhs, location);
+			symbol_table.add(newVar);
+		} 
+	}
+
+	private void update_Table(String lhs, String rhs, String location) {
+		boolean check = false;
+		for (int i = symbol_table.size() - 1; i >= 0; i--) {
+			Variable cmp_var = symbol_table.get(i);
+			if (cmp_var.lhs.equals(lhs) && cmp_var.location.equals(location)) {
+				symbol_table.get(i).rhs = rhs;
+				check = true;
+			} else {
+				if (!location.equals("global")) { // local이면 local에 없을 때
+					// global에서도 찾아보기
+					if (cmp_var.lhs.equals(lhs)
+							&& cmp_var.location.equals("global")) {
+						symbol_table.get(i).rhs = rhs;
+						check = true;
+					}
+				}
+			}
+		}
+		if (check == false) {
+			System.out.println("변수 " + lhs + " 없습니다");
+		}
+	}
+
+	@Override
+	public void exitProgram(MiniGoParser.ProgramContext ctx) {
+		int i = 0;
+		for (int j = symbol_table.size() - 1; j >= 0; j--) {
+			if (!symbol_table.get(j).use)
+				System.out.println("Warning : "
+						+ symbol_table.get(j).location + "의 변수 "
+						+ symbol_table.get(j).lhs + "는 쓰이지 않습니다!");
+		}
+		System.out.println();
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(
+					"optimizedUcode.uco"));
+			while (ctx.decl(i) != null) {
+				System.out.println(newTexts.get(ctx.decl(i)));
+				writer.write(newTexts.get(ctx.decl(i)));
+				i++;
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	@Override
 	public void exitExpr(MiniGoParser.ExprContext ctx) {
 	
-		
-	}
-	
-	@Override
-	public void exitProgram(MiniGoParser.ProgramContext ctx) {
 		
 	}
 	
