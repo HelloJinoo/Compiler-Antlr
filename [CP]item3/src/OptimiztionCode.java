@@ -525,10 +525,17 @@ public class OptimiztionCode extends MiniGoBaseListener {
 		newTexts.put(ctx, newTexts.get(ctx.expr()));
 	}
 
-	/* ¾øÀ½ */
+
 	@Override
 	public void exitFor_stmt(MiniGoParser.For_stmtContext ctx) {
-
+		String s1 = ctx.expr().getText();
+		String s2 = "";
+		if (newTexts.get(ctx.expr()).equals("0")) {
+			newTexts.put(ctx, "");
+			return;
+		}
+		s2 = indent() + "{\n    " + newTexts.get(ctx.expr()) + "\n"+ indent() + "}";
+		newTexts.put(ctx, ctx.getChild(0).getText() + " (" + s1 + ")\n" + s2);
 	}
 
 	@Override
