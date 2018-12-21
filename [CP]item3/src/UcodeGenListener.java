@@ -5,6 +5,8 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
+import item3.MiniCParser;
+
 
 public class UcodeGenListener extends MiniGoBaseListener {
 	public static String result="";
@@ -322,19 +324,32 @@ public void exitLocal_decl(MiniGoParser.Local_declContext ctx) {
    public void exitStmt(MiniGoParser.StmtContext ctx) {
 	   if (ctx.getChild(0) == ctx.expr_stmt()) { // expr_stmt
 			newTexts.put(ctx, newTexts.get(ctx.expr_stmt()));
-		} else if (ctx.getChild(0) == ctx.compound_stmt()) { // compound_stmt
-			newTexts.put(ctx, newTexts.get(ctx.compound_stmt()));
+		} else if (ctx.getChild(0) == ctx.compound_stmt()) {// compound_stmt
+			if(ctx.parent instanceof MiniGoParser.If_stmtContext) {
+				MiniGoParser.If_stmtContext test = (MiniGoParser.If_stmtContext) ctx.parent;
+				if(newTexts.get(test.expr()).equals("1") || newTexts.get(test.expr()).equals("0")) {
+					newTexts.put(ctx, newTexts.get(ctx.compound_stmt()));
+				}else {
+					newTexts.put(ctx, printTab() + newTexts.get(ctx.compound_stmt()));
+				}
+			}else {
+				newTexts.put(ctx, printTab() + newTexts.get(ctx.compound_stmt()));
+			}
 		} else if( ctx.getChild(0) == ctx.assign_stmt()) {
 			newTexts.put(ctx,newTexts.get(ctx.assign_stmt()));
-		}
-		else if (ctx.getChild(0) == ctx.if_stmt()) { // if_stmt
-			newTexts.put(ctx, newTexts.get(ctx.if_stmt()));
+		} else if (ctx.getChild(0) == ctx.if_stmt()) { // if_stmt
+			if(newTexts.get(ctx.if_stmt().expr()).equals("1") || newTexts.get(ctx.if_stmt().expr()).equals("0")) {
+				newTexts.put(ctx,newTexts.get(ctx.if_stmt()));
+			}else {
+				newTexts.put(ctx, printTab() + newTexts.get(ctx.if_stmt()));
+			}
 		} else if (ctx.getChild(0) == ctx.for_stmt()) { // for_stmt
-			newTexts.put(ctx, newTexts.get(ctx.for_stmt()));
+			newTexts.put(ctx, printTab() + newTexts.get(ctx.for_stmt()));
 		} else if (ctx.getChild(0) == ctx.return_stmt()) { // return_stmt
-			newTexts.put(ctx, newTexts.get(ctx.return_stmt()));
+			newTexts.put(ctx, printTab() + newTexts.get(ctx.return_stmt()));
 		}
    }
+   
    @Override
 public void enterAssign_stmt(MiniGoParser.Assign_stmtContext ctx) {
 	   String s1 ="" , s2="";
