@@ -1,2 +1,4 @@
-var a var b  
-var c var d[2] 
+var a 
+var b  
+var c 
+var d[2] 

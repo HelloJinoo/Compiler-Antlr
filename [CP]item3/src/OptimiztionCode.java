@@ -146,8 +146,9 @@ public class OptimiztionCode extends MiniGoBaseListener{
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter("optimizedGo.go"));
 			while (ctx.decl(i) != null) {
+				String text= newTexts.get(ctx.decl(i));
 				System.out.println(newTexts.get(ctx.decl(i)));
-				writer.write(newTexts.get(ctx.decl(i)));
+				writer.write(text+"\n");
 				i++;
 			}
 			writer.close();
@@ -200,7 +201,7 @@ public class OptimiztionCode extends MiniGoBaseListener{
 			newTexts.put(ctx,"");
 		}
 		else {
-		newTexts.put(ctx, ctx.getChild(0).getText());
+			newTexts.put(ctx, ctx.getChild(0).getText());
 		}
 	}
 	
@@ -212,25 +213,54 @@ public class OptimiztionCode extends MiniGoBaseListener{
 	
 	@Override
 	public void enterFun_decl(MiniGoParser.Fun_declContext ctx) {
-		
+		location = ctx.getChild(1).getText();
 	}
 	
 	@Override
 	public void exitFun_decl(MiniGoParser.Fun_declContext ctx) {
-		
+		if( ctx.getChildCount() == 7) {
+			newTexts.put(ctx, ctx.getChild(0).getText() + " " + ctx.getChild(1).getText() + "("
+					+ newTexts.get(ctx.params()) + ") "+ newTexts.get(ctx.type_spec(0)) +" \n"
+					+ newTexts.get(ctx.compound_stmt()));
+		}
+		else {
+			newTexts.put(ctx, ctx.getChild(0).getText() + " " + ctx.getChild(1).getText() + "("
+					+ newTexts.get(ctx.params()) + ") (" +newTexts.get(ctx.type_spec(0))+","+newTexts.get(ctx.type_spec(1)) +" \n"
+					+ newTexts.get(ctx.compound_stmt()));
+		}
+		location = "global";
 	}
 	@Override
 	public void exitParams(MiniGoParser.ParamsContext ctx) {
-		
+		if (ctx.getChildCount() == 0) {
+			newTexts.put(ctx, "");
+		}
+		else { // param (',' param)*
+			int i = 2;
+			String s = newTexts.get(ctx.param(0));
+			while (ctx.param(i) != null) {
+				s += ","+newTexts.get(ctx.param(i));
+				i = i+2;
+				
+			}
+			newTexts.put(ctx, s);
+		}
 	}
 	@Override
 	public void enterParam(MiniGoParser.ParamContext ctx) {
-	
+		String varName = ctx.getChild(0).getText();
+		declare_Table(varName, location);
 	}
 	
 	@Override
 	public void exitParam(MiniGoParser.ParamContext ctx) {
-	
+		if (ctx.getChildCount() == 2) { // IDENT type_spec
+			newTexts.put(ctx,
+					 ctx.getChild(0)+" "+ newTexts.get(ctx.type_spec()) );
+		} else { //IDENT '[' ']' type_spec
+			newTexts.put(ctx,
+					ctx.getChild(0)+"[] "+  newTexts.get(ctx.type_spec()));
+		}
 	
 	}
 	@Override
