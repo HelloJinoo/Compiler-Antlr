@@ -393,11 +393,40 @@ public class OptimiztionCode extends MiniGoBaseListener{
 	}
 	@Override
 	public void exitReturn_stmt(MiniGoParser.Return_stmtContext ctx) {
-		
+		String type = ctx.getParent().getParent().getParent().getChild(0).getText();
+		if (ctx.getChildCount() == 2) { // RETURN 
+			if (type.equals("int")) {
+				System.out.println("Error[return type]: int형 함수와 return type이 맞지 않습니다!");
+			}
+			newTexts.put(ctx, ctx.getChild(0).getText());
+		}else if( ctx.getChildCount() == 4) {  //RETURN expr, expr
+			if (type.equals("void")) {
+				System.out.println("Error[return type]: void형 함수와 return type이 맞지 않습니다!");
+			}
+			newTexts.put(ctx, ctx.getChild(0)+" " +newTexts.get(ctx.expr(0))+" , "+ newTexts.get(ctx.expr(1)));
+			
+		}
+		else { // RETURN expr ';'
+			if (type.equals("void")) {
+				System.out
+						.println("Error[return type]: void형 함수와 return type이 맞지 않습니다!");
+			}
+			newTexts.put(ctx, ctx.getChild(0).getText() + " " + newTexts.get(ctx.expr(0)));
+		}
 	}
 	@Override
 	public void exitArgs(MiniGoParser.ArgsContext ctx) {
-		
+		if (ctx.getChildCount() == 0) {
+			newTexts.put(ctx, "");
+		} else { // expr ( ',' expr)*
+			int i = 2;
+			String s = newTexts.get(ctx.expr(0));
+			while (ctx.expr(i) != null) { // ( ',' expr)* 부분을 위한 while문
+				s += ","+newTexts.get(ctx.expr(i));
+				i=i+2;
+			}
+			newTexts.put(ctx, s);
+		}
 	}
 	
 }
