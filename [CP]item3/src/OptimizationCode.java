@@ -7,7 +7,8 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 
-public class OptimiztionCode extends MiniGoBaseListener {
+
+public class OptimizationCode extends MiniGoBaseListener{
 	ParseTreeProperty<String> newTexts = new ParseTreeProperty<>();
 	int indentCount = 0;
 	List<Variable> symbol_table = new ArrayList<>();
@@ -50,7 +51,8 @@ public class OptimiztionCode extends MiniGoBaseListener {
 				return symbol_table.get(i);
 			} else {
 				if (!location.equals("global")) {// global에서도 찾아보기
-					if (cmp_var.lhs.equals(lhs) && cmp_var.location.equals("global"))
+					if (cmp_var.lhs.equals(lhs)
+							&& cmp_var.location.equals("global"))
 						if (symbol_table.get(i) != null)
 							return symbol_table.get(i);
 				}
@@ -58,16 +60,18 @@ public class OptimiztionCode extends MiniGoBaseListener {
 		}
 		return null;
 	}
-
+	
 	private Variable lookupRhs_Table(String rhs, String location) {
 		for (int i = symbol_table.size() - 1; i >= 0; i--) {
 			Variable cmp_var = symbol_table.get(i);
 			if (cmp_var.rhs != null) {
-				if (cmp_var.rhs.equals(rhs) && cmp_var.location.equals(location))
+				if (cmp_var.rhs.equals(rhs)
+						&& cmp_var.location.equals(location))
 					return symbol_table.get(i);
 				else {
 					if (!location.equals("global")) {// global에서도 찾아보기
-						if (cmp_var.rhs.equals(rhs) && cmp_var.location.equals("global"))
+						if (cmp_var.rhs.equals(rhs)
+								&& cmp_var.location.equals("global"))
 							if (symbol_table.get(i) != null)
 								return symbol_table.get(i);
 					}
@@ -76,12 +80,11 @@ public class OptimiztionCode extends MiniGoBaseListener {
 		}
 		return null;
 	}
-
 	class Variable {
-		String lhs; // 변수 이름
-		String rhs; // 변수 값
-		boolean use = false; // 변수 사용유무
-		String location; // 변수 위치
+		String lhs;	//변수 이름
+		String rhs; //변수 값
+		boolean use = false; //변수 사용유무
+		String location; //변수 위치
 
 		public Variable(String lhs, String location) {
 			this.lhs = lhs;
@@ -94,19 +97,17 @@ public class OptimiztionCode extends MiniGoBaseListener {
 			this.location = location;
 		}
 	}
-
 	private void declare_Table(String lhs, String location) {
 		if (lookup_Table(lhs, location) == null) { // 테이블에 똑같은 변수가 없으면 insert
 			Variable newVar = new Variable(lhs, location);
 			symbol_table.add(newVar);
 		}
 	}
-
 	private void define_Table(String lhs, String rhs, String location) {
 		if (lookup_Table(lhs, location) == null) { // 테이블에 똑같은 변수가 없으면 insert
 			Variable newVar = new Variable(lhs, rhs, location);
 			symbol_table.add(newVar);
-		}
+		} 
 	}
 
 	private void update_Table(String lhs, String rhs, String location) {
@@ -119,7 +120,8 @@ public class OptimiztionCode extends MiniGoBaseListener {
 			} else {
 				if (!location.equals("global")) { // local이면 local에 없을 때
 					// global에서도 찾아보기
-					if (cmp_var.lhs.equals(lhs) && cmp_var.location.equals("global")) {
+					if (cmp_var.lhs.equals(lhs)
+							&& cmp_var.location.equals("global")) {
 						symbol_table.get(i).rhs = rhs;
 						check = true;
 					}
@@ -136,16 +138,17 @@ public class OptimiztionCode extends MiniGoBaseListener {
 		int i = 0;
 		for (int j = symbol_table.size() - 1; j >= 0; j--) {
 			if (!symbol_table.get(j).use)
-				System.out.println("Warning : " + symbol_table.get(j).location + "의 변수 " + symbol_table.get(j).lhs
-						+ "는 쓰이지 않습니다!");
+				System.out.println("Warning : "
+						+ symbol_table.get(j).location + "의 변수 "
+						+ symbol_table.get(j).lhs + "는 쓰이지 않습니다!");
 		}
 		System.out.println();
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter("optimizedGo.go"));
 			while (ctx.decl(i) != null) {
-				String text = newTexts.get(ctx.decl(i));
+				String text= newTexts.get(ctx.decl(i));
 				System.out.println(newTexts.get(ctx.decl(i)));
-				writer.write(text + "\n");
+				writer.write(text+"\n");
 				i++;
 			}
 			writer.close();
@@ -153,7 +156,7 @@ public class OptimiztionCode extends MiniGoBaseListener {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void exitDecl(MiniGoParser.DeclContext ctx) {
 		if (ctx.getChild(0) == ctx.var_decl()) { // var_decl
@@ -162,54 +165,53 @@ public class OptimiztionCode extends MiniGoBaseListener {
 			newTexts.put(ctx, newTexts.get(ctx.fun_decl()));
 		}
 	}
-
 	@Override
 	public void enterVar_decl(MiniGoParser.Var_declContext ctx) {
 		/* symbol_table에 변수 넣어주기 */
-		String varName = ctx.getChild(1).getText();
-		if (ctx.getChildCount() == 3) { // VAR IDENT type_spec
-			declare_Table(varName, location);
-		} else if (ctx.getChildCount() == 5) { // VAR IDENT ',' IDENT type_spec
-			declare_Table(varName, location);
-			varName = ctx.getChild(3).getText();
-			declare_Table(varName, location);
-		} else if (ctx.getChildCount() == 6) { // VAR IDENT '[' LITERAL ']' type_spec
-			declare_Table(varName, location);
-		}
+			String varName = ctx.getChild(1).getText();
+			if(ctx.getChildCount() == 3) {	//VAR IDENT type_spec
+				declare_Table(varName, location);
+			}
+			else if( ctx.getChildCount() == 5) {	//VAR IDENT ',' IDENT type_spec
+				declare_Table(varName, location);
+				varName = ctx.getChild(3).getText();
+				declare_Table(varName, location);
+			}
+			else if( ctx.getChildCount() == 6) {	//VAR IDENT '[' LITERAL ']' type_spec
+				declare_Table(varName, location);
+			}
 	}
-
+	
 	@Override
 	public void exitVar_decl(MiniGoParser.Var_declContext ctx) {
-		if (ctx.getChildCount() == 3) { // VAR IDENT type_spec
-			newTexts.put(ctx, indent() + ctx.getChild(0).getText() + " " + ctx.getChild(1).getText() + " "
-					+ newTexts.get(ctx.type_spec()));
-		} else if (ctx.getChildCount() == 5) { // VAR IDENT ',' IDENT type_spec
+		if (ctx.getChildCount() == 3) { //VAR IDENT type_spec
+			newTexts.put(ctx,indent()+ctx.getChild(0).getText()+" " +ctx.getChild(1).getText() +" "+ newTexts.get(ctx.type_spec()));
+		} else if (ctx.getChildCount() == 5) { //VAR IDENT ',' IDENT type_spec
 			String s1 = ctx.getChild(1).getText();
 			String s2 = ctx.getChild(3).getText();
-			newTexts.put(ctx, indent() + ctx.getChild(0).getText() + " " + s1 + " " + newTexts.get(ctx.type_spec())
-					+ " \n" + indent() + ctx.getChild(0).getText() + " " + s2 + " " + newTexts.get(ctx.type_spec()));
-		} else { // VAR IDENT '[' LITERAL ']' type_spec
-			newTexts.put(ctx, indent() + ctx.getChild(0).getText() + " " + ctx.getChild(1).getText() + "["
-					+ ctx.getChild(3) + "] " + newTexts.get(ctx.type_spec()));
+			newTexts.put(ctx,indent()+ctx.getChild(0).getText()+" "+ s1 +" " +newTexts.get(ctx.type_spec()) + " \n"
+			+indent()+ctx.getChild(0).getText()+" "+s2 +" "+ newTexts.get(ctx.type_spec()) );
+		} else { //VAR IDENT '[' LITERAL ']' type_spec
+		newTexts.put(ctx,indent()+ ctx.getChild(0).getText()+" "+ctx.getChild(1).getText() + "["+ ctx.getChild(3) + "] " + newTexts.get(ctx.type_spec()));
 		}
 	}
-
 	@Override
 	public void exitType_spec(MiniGoParser.Type_specContext ctx) {
-		if (ctx.getChild(0) == null) {
-			newTexts.put(ctx, "");
-		} else {
+		if(ctx.getChild(0) == null) {
+			newTexts.put(ctx,"");
+		}
+		else {
 			newTexts.put(ctx, ctx.getChild(0).getText());
 		}
 	}
-
+	
 	@Override
 	public void exitExpr(MiniGoParser.ExprContext ctx) {
 		String s1 = null, s2 = null, op = null;
 		boolean b1 = false, b2 = false;
 
 		if (isBinaryOperation(ctx)) {
-			if (ctx.getChild(0) == ctx.expr(0)) { // expr OP expr
+			if (ctx.getChild(0) == ctx.expr(0)) { // expr op expr
 				s1 = newTexts.get(ctx.expr(0));
 				s2 = newTexts.get(ctx.expr(1));
 				op = ctx.getChild(1).getText();
@@ -232,10 +234,12 @@ public class OptimiztionCode extends MiniGoBaseListener {
 					} else {
 						String check = s1 + " " + op + " " + s2;
 						if (lookupRhs_Table(check, location) != null) {
-							newTexts.put(ctx, lookupRhs_Table(check, location).lhs);
+							newTexts.put(ctx,
+									lookupRhs_Table(check, location).lhs);
 						} else {
 							if (b1 && b2) { // folding
-								newTexts.put(ctx, Integer.toString(Integer.parseInt(s1) + Integer.parseInt(s2)));
+								newTexts.put(ctx,Integer.toString(Integer.parseInt(s1)
+												+ Integer.parseInt(s2)));
 							} else
 								newTexts.put(ctx, check);
 						}
@@ -250,10 +254,14 @@ public class OptimiztionCode extends MiniGoBaseListener {
 					} else {
 						String check = s1 + " " + op + " " + s2;
 						if (lookupRhs_Table(check, location) != null) {
-							newTexts.put(ctx, lookupRhs_Table(check, location).lhs);
+							newTexts.put(ctx,
+									lookupRhs_Table(check, location).lhs);
 						} else {
 							if (b1 && b2) { // folding
-								newTexts.put(ctx, Integer.toString(Integer.parseInt(s1) * Integer.parseInt(s2)));
+								newTexts.put(
+										ctx,
+										Integer.toString(Integer.parseInt(s1)
+												* Integer.parseInt(s2)));
 							} else
 								newTexts.put(ctx, check);
 						}
@@ -266,10 +274,14 @@ public class OptimiztionCode extends MiniGoBaseListener {
 					} else {
 						String check = s1 + " " + op + " " + s2;
 						if (lookupRhs_Table(check, location) != null) {
-							newTexts.put(ctx, lookupRhs_Table(check, location).lhs);
+							newTexts.put(ctx,
+									lookupRhs_Table(check, location).lhs);
 						} else {
 							if (b1 && b2) { // folding
-								newTexts.put(ctx, Integer.toString(Integer.parseInt(s1) - Integer.parseInt(s2)));
+								newTexts.put(
+										ctx,
+										Integer.toString(Integer.parseInt(s1)
+												- Integer.parseInt(s2)));
 							} else
 								newTexts.put(ctx, check);
 						}
@@ -285,10 +297,14 @@ public class OptimiztionCode extends MiniGoBaseListener {
 					} else {
 						String check = s1 + " " + op + " " + s2;
 						if (lookupRhs_Table(check, location) != null) {
-							newTexts.put(ctx, lookupRhs_Table(check, location).lhs);
+							newTexts.put(ctx,
+									lookupRhs_Table(check, location).lhs);
 						} else {
 							if (b1 && b2) { // folding
-								newTexts.put(ctx, Integer.toString(Integer.parseInt(s1) / Integer.parseInt(s2)));
+								newTexts.put(
+										ctx,
+										Integer.toString(Integer.parseInt(s1)
+												/ Integer.parseInt(s2)));
 							} else
 								newTexts.put(ctx, check);
 						}
@@ -300,10 +316,14 @@ public class OptimiztionCode extends MiniGoBaseListener {
 						newTexts.put(ctx, s1 + " " + op + " " + s2);
 					} else {
 						if (lookupRhs_Table(check, location) != null) {
-							newTexts.put(ctx, lookupRhs_Table(check, location).lhs);
+							newTexts.put(ctx,
+									lookupRhs_Table(check, location).lhs);
 						} else {
 							if (b1 && b2) { // folding
-								newTexts.put(ctx, Integer.toString(Integer.parseInt(s1) % Integer.parseInt(s2)));
+								newTexts.put(
+										ctx,
+										Integer.toString(Integer.parseInt(s1)
+												% Integer.parseInt(s2)));
 							} else
 								newTexts.put(ctx, check);
 						}
@@ -326,7 +346,8 @@ public class OptimiztionCode extends MiniGoBaseListener {
 						} else if (op.equals("<=") || op.equals("<")) {
 							if (Integer.parseInt(s1) - Integer.parseInt(s2) < 0) {
 								newTexts.put(ctx, "1");
-							} else if (Integer.parseInt(s1) - Integer.parseInt(s2) > 0) {
+							} else if (Integer.parseInt(s1)
+									- Integer.parseInt(s2) > 0) {
 								newTexts.put(ctx, "0");
 							} else {
 								if (op.equals("<="))
@@ -337,7 +358,8 @@ public class OptimiztionCode extends MiniGoBaseListener {
 						} else if (op.equals(">=") || op.equals(">")) {
 							if (Integer.parseInt(s1) - Integer.parseInt(s2) < 0) {
 								newTexts.put(ctx, "0");
-							} else if (Integer.parseInt(s1) - Integer.parseInt(s2) > 0) {
+							} else if (Integer.parseInt(s1)
+									- Integer.parseInt(s2) > 0) {
 								newTexts.put(ctx, "1");
 							} else {
 								if (op.equals(">="))
@@ -346,13 +368,15 @@ public class OptimiztionCode extends MiniGoBaseListener {
 									newTexts.put(ctx, "0");
 							}
 						} else if (op.equals("and")) {
-							if (Integer.parseInt(s1) != 0 && Integer.parseInt(s2) != 0) {
+							if (Integer.parseInt(s1) != 0
+									&& Integer.parseInt(s2) != 0) {
 								newTexts.put(ctx, "1");
 							} else {
 								newTexts.put(ctx, "0");
 							}
 						} else if (op.equals("or")) {
-							if (Integer.parseInt(s1) != 0 || Integer.parseInt(s2) != 0) {
+							if (Integer.parseInt(s1) != 0
+									|| Integer.parseInt(s2) != 0) {
 								newTexts.put(ctx, "1");
 							} else {
 								newTexts.put(ctx, "0");
@@ -362,7 +386,6 @@ public class OptimiztionCode extends MiniGoBaseListener {
 						newTexts.put(ctx, check);
 					}
 				}
-
 			} else { // IDENT '=' expr
 				s1 = ctx.getChild(0).getText();
 				s2 = newTexts.get(ctx.expr(0));
@@ -377,18 +400,19 @@ public class OptimiztionCode extends MiniGoBaseListener {
 				if (!b2) { // s2가 숫자가 아니면
 					if (lookup_Table(s2, location) != null) {
 						String newRhs = lookup_Table(s2, location).rhs;
-						newTexts.put(ctx, indent()+s1 + " " + op + " " + newRhs);
+						newTexts.put(ctx, s1 + " " + op + " " + newRhs);
 						update_Table(s1, newRhs, location);
 					} else {
-						newTexts.put(ctx, indent()+s1 + " " + op + " " + s2);
+						newTexts.put(ctx, s1 + " " + op + " " + s2);
 						update_Table(s1, s2, location);
 					}
 				} else {
-					newTexts.put(ctx, indent()+s1 + " " + op + " " + s2);
+					newTexts.put(ctx, s1 + " " + op + " " + s2);
 					update_Table(s1, s2, location);
 				}
 			}
 		} else if (isPreOperation(ctx)) { // op expr
+			/* 전위 연산자와 피연산자 사이에는 빈칸을 두지 않는다. */
 			op = ctx.getChild(0).getText();
 			s1 = newTexts.get(ctx.expr(0));
 			if (op.equals("++")) {
@@ -422,8 +446,56 @@ public class OptimiztionCode extends MiniGoBaseListener {
 					update_Table(s1, newRhs, location);
 				}
 			}
-			newTexts.put(ctx, indent()+op + s1);
-		} else if (ctx.getChildCount() == 1) {
+			else if( op.equals("-")) {
+				if (lookup_Table(s1, location) != null) {
+					String newRhs = lookup_Table(s1, location).rhs;
+					for (int i = 0; i < newRhs.length(); i++) {
+						b1 = isNumber(newRhs.charAt(i));
+						if (!b1)
+							break;
+					}
+					if (!b1) { // rhs가 숫자가 아니면
+						newRhs = "-"+newRhs;
+					} else { // rhs가 숫자면
+						newRhs = Integer.toString(-Integer.parseInt(newRhs));
+					}
+					update_Table(s1, newRhs, location);
+				}
+			}
+			else if(op.equals("+")) {
+				if (lookup_Table(s1, location) != null) {
+					String newRhs = lookup_Table(s1, location).rhs;
+					for (int i = 0; i < newRhs.length(); i++) {
+						b1 = isNumber(newRhs.charAt(i));
+						if (!b1)
+							break;
+					}
+					if (!b1) { // rhs가 숫자가 아니면
+						newRhs = "+"+newRhs;
+					} else { // rhs가 숫자면
+						newRhs = Integer.toString(Integer.parseInt(newRhs));
+					}
+					update_Table(s1, newRhs, location);
+				}
+			}
+			else if(op.equals("!")) {
+				if (lookup_Table(s1, location) != null) {
+					String newRhs = lookup_Table(s1, location).rhs;
+					for (int i = 0; i < newRhs.length(); i++) {
+						b1 = isNumber(newRhs.charAt(i));
+						if (!b1)
+							break;
+					}
+					if (!b1) { // rhs가 숫자가 아니면
+						newRhs ="!"+newRhs;
+					} else { // rhs가 숫자면
+						newRhs = Integer.toString(Integer.parseInt(newRhs));
+					}
+					update_Table(s1, newRhs, location);
+				}
+			}
+			newTexts.put(ctx, op + s1);
+		} else if (ctx.getChildCount() == 1) { // IDENT|LITERAL
 			if (ctx.IDENT() != null) { // IDENT
 				if (lookup_Table(ctx.IDENT().getText(), location) != null) { // propagation
 					lookup_Table(ctx.IDENT().getText(), location).use = true;
@@ -493,67 +565,67 @@ public class OptimiztionCode extends MiniGoBaseListener {
 				lookup_Table(ctx.IDENT().getText(), location).use = true;
 			newTexts.put(ctx, ctx.getChild(0) + "[" + s1 + "] = " + s2);
 		}
-		}
 		
+	}
 	
-
 	@Override
 	public void enterFun_decl(MiniGoParser.Fun_declContext ctx) {
 		location = ctx.getChild(1).getText();
 	}
-
+	
 	@Override
 	public void exitFun_decl(MiniGoParser.Fun_declContext ctx) {
-		if (ctx.getChildCount() == 7) {
-			newTexts.put(ctx,
-					ctx.getChild(0).getText() + " " + ctx.getChild(1).getText() + "(" + newTexts.get(ctx.params())
-							+ ") " + newTexts.get(ctx.type_spec(0)) + " \n" + newTexts.get(ctx.compound_stmt()));
-		} else {
-			newTexts.put(ctx,
-					ctx.getChild(0).getText() + " " + ctx.getChild(1).getText() + "(" + newTexts.get(ctx.params())
-							+ ") (" + newTexts.get(ctx.type_spec(0)) + "," + newTexts.get(ctx.type_spec(1)) + " \n"
-							+ newTexts.get(ctx.compound_stmt()));
+		if( ctx.getChildCount() == 7) {
+			newTexts.put(ctx, ctx.getChild(0).getText() + " " + ctx.getChild(1).getText() + "("
+					+ newTexts.get(ctx.params()) + ") "+ newTexts.get(ctx.type_spec(0)) +" \n"
+					+ newTexts.get(ctx.compound_stmt()));
+		}
+		else {
+			newTexts.put(ctx, ctx.getChild(0).getText() + " " + ctx.getChild(1).getText() + "("
+					+ newTexts.get(ctx.params()) + ") (" +newTexts.get(ctx.type_spec(0))+","+newTexts.get(ctx.type_spec(1)) +" \n"
+					+ newTexts.get(ctx.compound_stmt()));
 		}
 		location = "global";
 	}
-
 	@Override
 	public void exitParams(MiniGoParser.ParamsContext ctx) {
 		if (ctx.getChildCount() == 0) {
 			newTexts.put(ctx, "");
-		} else { // param (',' param)*
+		}
+		else { // param (',' param)*
 			int i = 2;
 			String s = newTexts.get(ctx.param(0));
 			while (ctx.param(i) != null) {
-				s += "," + newTexts.get(ctx.param(i));
-				i = i + 2;
-
+				s += ","+newTexts.get(ctx.param(i));
+				i = i+2;
+				
 			}
 			newTexts.put(ctx, s);
 		}
 	}
-
 	@Override
 	public void enterParam(MiniGoParser.ParamContext ctx) {
 		String varName = ctx.getChild(0).getText();
 		declare_Table(varName, location);
 	}
-
+	
 	@Override
 	public void exitParam(MiniGoParser.ParamContext ctx) {
 		if (ctx.getChildCount() == 2) { // IDENT type_spec
-			newTexts.put(ctx, ctx.getChild(0) + " " + newTexts.get(ctx.type_spec()));
-		} else { // IDENT '[' ']' type_spec
-			newTexts.put(ctx, ctx.getChild(0) + "[] " + newTexts.get(ctx.type_spec()));
+			newTexts.put(ctx,
+					 ctx.getChild(0)+" "+ newTexts.get(ctx.type_spec()) );
+		} else { //IDENT '[' ']' type_spec
+			newTexts.put(ctx,
+					ctx.getChild(0)+"[] "+  newTexts.get(ctx.type_spec()));
 		}
-
+	
 	}
-
 	@Override
 	public void exitStmt(MiniGoParser.StmtContext ctx) {
 		if (ctx.getChild(0) == ctx.expr_stmt()) { // expr_stmt
 			newTexts.put(ctx, newTexts.get(ctx.expr_stmt()));
 		} else if (ctx.getChild(0) == ctx.compound_stmt()) {// compound_stmt
+			
 			if (ctx.parent instanceof MiniGoParser.If_stmtContext) {
 				MiniGoParser.If_stmtContext test = (MiniGoParser.If_stmtContext) ctx.parent;
 				if (newTexts.get(test.expr()).equals("1") || newTexts.get(test.expr()).equals("0")) {
@@ -564,7 +636,8 @@ public class OptimiztionCode extends MiniGoBaseListener {
 			} else {
 				newTexts.put(ctx, indent() + newTexts.get(ctx.compound_stmt()));
 			}
-		} else if (ctx.getChild(0) == ctx.assign_stmt()) {
+		} 
+		else if (ctx.getChild(0) == ctx.assign_stmt()) {
 			newTexts.put(ctx, newTexts.get(ctx.assign_stmt()));
 		} else if (ctx.getChild(0) == ctx.if_stmt()) { // if_stmt
 			if (newTexts.get(ctx.if_stmt().expr()).equals("1") || newTexts.get(ctx.if_stmt().expr()).equals("0")) {
@@ -578,25 +651,15 @@ public class OptimiztionCode extends MiniGoBaseListener {
 			newTexts.put(ctx, indent() + newTexts.get(ctx.return_stmt()));
 		}
 	}
-
+	
 	@Override
 	public void exitExpr_stmt(MiniGoParser.Expr_stmtContext ctx) {
-		newTexts.put(ctx, newTexts.get(ctx.expr()));
+		
 	}
-
-
 	@Override
 	public void exitFor_stmt(MiniGoParser.For_stmtContext ctx) {
-		String s1 = ctx.expr().getText();
-		String s2 = "";
-		if (newTexts.get(ctx.expr()).equals("0")) {
-			newTexts.put(ctx, "");
-			return;
-		}
-		s2 = indent() + "{\n    " + newTexts.get(ctx.expr()) + "\n"+ indent() + "}";
-		newTexts.put(ctx, ctx.getChild(0).getText() + " (" + s1 + ")\n" + s2);
+		
 	}
-
 	@Override
 	public void enterCompound_stmt(MiniGoParser.Compound_stmtContext ctx) {
 		if (ctx.getParent().getParent().getChildCount() >= 5) {
@@ -650,54 +713,27 @@ public class OptimiztionCode extends MiniGoBaseListener {
 		s += indent() + "}";
 		newTexts.put(ctx, s);
 	}
-
 	@Override
 	public void enterLocal_decl(MiniGoParser.Local_declContext ctx) {
 		String varName = ctx.getChild(1).getText();
 		declare_Table(varName, location);
 	}
-
 	@Override
 	public void exitLocal_decl(MiniGoParser.Local_declContext ctx) {
-
-		if (ctx.getChildCount() == 3) { // VAR IDENT type_spec
+		if (ctx.getChildCount() == 3) { // VAR IDENT type_spec ';'
 			newTexts.put(ctx, indent() + ctx.getChild(0).getText() + " "
-				+ctx.getChild(1).getText() +" "+ newTexts.get(ctx.type_spec()) );
+				+ctx.getChild(1).getText() +" "+ ctx.type_spec());
 		}
 		else if (ctx.getChildCount() == 6) { // VAR IDENT '[' LITERAL ']' type_spec
 			newTexts.put(ctx, indent() + ctx.getChild(0).getText() + " "
-					+ctx.getChild(1).getText() +" ["+ ctx.getChild(3).getText() +"] "+ newTexts.get(ctx.type_spec()));
+					+ctx.getChild(1).getText() +" ["+ ctx.getChild(3).getText() +"] "+ ctx.type_spec());
 		}
 	}
-
+	
 	@Override
 	public void exitIf_stmt(MiniGoParser.If_stmtContext ctx) {
-		if (ctx.getChildCount() == 3) { // IF expr compound_stmt
-			if (newTexts.get(ctx.expr()).equals("0")) {
-				newTexts.put(ctx, "");
-			} else if (newTexts.get(ctx.expr()).equals("1")) {
-				newTexts.put(ctx, newTexts.get(ctx.compound_stmt(0)));
-			} else {
-				String s = ctx.getChild(0) + " (" + newTexts.get(ctx.expr());
-				s += newTexts.get(ctx.compound_stmt(0));
-				newTexts.put(ctx, s);
-			}
-		} else if (ctx.getChildCount() == 5) { // IF expr compound_stmt ELSE compound_stmt
-			if (newTexts.get(ctx.expr()).equals("0")) {
-				newTexts.put(ctx, newTexts.get(ctx.compound_stmt(1)));
-			} else if (newTexts.get(ctx.expr()).equals("1")) {
-				newTexts.put(ctx, newTexts.get(ctx.compound_stmt(0)));
-			} else {
-				String s = ctx.getChild(0) + newTexts.get(ctx.expr()) + "\n";
-				s += newTexts.get(ctx.compound_stmt(0)) + "\n";
-				s += indent() + ctx.getChild(3) + "\n";
-				s += newTexts.get(ctx.compound_stmt(1)) + "\n";
-
-				newTexts.put(ctx, s);
-			}
-		}
+		
 	}
-
 	@Override
 	public void exitReturn_stmt(MiniGoParser.Return_stmtContext ctx) {
 		String type = ctx.getParent().getParent().getParent().getChild(0).getText();
@@ -721,7 +757,6 @@ public class OptimiztionCode extends MiniGoBaseListener {
 			newTexts.put(ctx, ctx.getChild(0).getText() + " " + newTexts.get(ctx.expr(0)));
 		}
 	}
-
 	@Override
 	public void exitArgs(MiniGoParser.ArgsContext ctx) {
 		if (ctx.getChildCount() == 0) {
@@ -736,5 +771,5 @@ public class OptimiztionCode extends MiniGoBaseListener {
 			newTexts.put(ctx, s);
 		}
 	}
-
+	
 }

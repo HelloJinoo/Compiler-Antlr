@@ -1,4 +1,8 @@
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,6 +120,14 @@ public class UcodeGenListener extends MiniGoBaseListener {
 		finish += printTab() + "end";
 		System.out.println(newTexts.get(ctx) +finish);
 		result = newTexts.get(ctx) +finish;
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter("optimizedUcode.uco"));
+			writer.write(result);
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
    }
 
    @Override

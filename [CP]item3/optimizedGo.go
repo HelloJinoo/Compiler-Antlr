@@ -1,4 +1,7 @@
 var a 
-var b  
-var c 
-var d[2] 
+var b 
+func main()  
+{
+    var c 
+    c = 4
+}
