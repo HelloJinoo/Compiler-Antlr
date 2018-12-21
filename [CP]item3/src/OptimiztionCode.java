@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
-
-
 public class OptimiztionCode extends MiniGoBaseListener{
 	ParseTreeProperty<String> newTexts = new ParseTreeProperty<>();
 	int indentCount = 0;
@@ -295,12 +293,15 @@ public class OptimiztionCode extends MiniGoBaseListener{
 	
 	@Override
 	public void exitExpr_stmt(MiniGoParser.Expr_stmtContext ctx) {
-		
+		newTexts.put(ctx, newTexts.get(ctx.expr()));
 	}
+	
+	/* ¾øÀ½ */
 	@Override
 	public void exitFor_stmt(MiniGoParser.For_stmtContext ctx) {
 		
 	}
+	
 	@Override
 	public void enterCompound_stmt(MiniGoParser.Compound_stmtContext ctx) {
 		if (ctx.getParent().getParent().getChildCount() >= 5) {
@@ -364,7 +365,31 @@ public class OptimiztionCode extends MiniGoBaseListener{
 	
 	@Override
 	public void exitIf_stmt(MiniGoParser.If_stmtContext ctx) {
-		
+		if (ctx.getChildCount() == 3) { // IF expr compound_stmt
+			if (newTexts.get(ctx.expr()).equals("0")) {
+				newTexts.put(ctx, "");
+			} else if (newTexts.get(ctx.expr()).equals("1")) {
+				newTexts.put(ctx, newTexts.get(ctx.compound_stmt(0)));
+			} else {
+				String s = ctx.getChild(0) + " (" + newTexts.get(ctx.expr());
+				s += newTexts.get(ctx.compound_stmt(0));
+				newTexts.put(ctx, s);
+			}
+		} else if (ctx.getChildCount() == 5) { // IF expr compound_stmt ELSE compound_stmt
+			if (newTexts.get(ctx.expr()).equals("0")) {
+				newTexts.put(ctx, newTexts.get(ctx.compound_stmt(1)));
+			} else if (newTexts.get(ctx.expr()).equals("1")) {
+				newTexts.put(ctx, newTexts.get(ctx.compound_stmt(0)));
+			} else {
+				String s = ctx.getChild(0) + newTexts.get(ctx.expr())
+						+ "\n";
+						s += newTexts.get(ctx.compound_stmt(0)) + "\n";
+						s += indent() + ctx.getChild(3) + "\n";
+						s += newTexts.get(ctx.compound_stmt(1)) + "\n";
+				
+				newTexts.put(ctx, s);
+			}
+		}
 	}
 	@Override
 	public void exitReturn_stmt(MiniGoParser.Return_stmtContext ctx) {
