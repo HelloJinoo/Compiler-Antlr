@@ -265,6 +265,32 @@ public class OptimiztionCode extends MiniGoBaseListener{
 	}
 	@Override
 	public void exitStmt(MiniGoParser.StmtContext ctx) {
+		if (ctx.getChild(0) == ctx.expr_stmt()) { // expr_stmt
+			newTexts.put(ctx, newTexts.get(ctx.expr_stmt()));
+		} else if (ctx.getChild(0) == ctx.compound_stmt()) {// compound_stmt
+			if (ctx.parent instanceof MiniGoParser.If_stmtContext) {
+				MiniGoParser.If_stmtContext test = (MiniGoParser.If_stmtContext) ctx.parent;
+				if (newTexts.get(test.expr()).equals("1") || newTexts.get(test.expr()).equals("0")) {
+					newTexts.put(ctx, newTexts.get(ctx.compound_stmt()));
+				} else {
+					newTexts.put(ctx, indent() + newTexts.get(ctx.compound_stmt()));
+				}
+			} else {
+				newTexts.put(ctx, indent() + newTexts.get(ctx.compound_stmt()));
+			}
+		} else if (ctx.getChild(0) == ctx.assign_stmt()) {
+			newTexts.put(ctx, newTexts.get(ctx.assign_stmt()));
+		} else if (ctx.getChild(0) == ctx.if_stmt()) { // if_stmt
+			if (newTexts.get(ctx.if_stmt().expr()).equals("1") || newTexts.get(ctx.if_stmt().expr()).equals("0")) {
+				newTexts.put(ctx, newTexts.get(ctx.if_stmt()));
+			} else {
+				newTexts.put(ctx, indent() + newTexts.get(ctx.if_stmt()));
+			}
+		} else if (ctx.getChild(0) == ctx.for_stmt()) { // for_stmt
+			newTexts.put(ctx, indent() + newTexts.get(ctx.for_stmt()));
+		} else if (ctx.getChild(0) == ctx.return_stmt()) { // return_stmt
+			newTexts.put(ctx, indent() + newTexts.get(ctx.return_stmt()));
+		}
 	}
 	
 	@Override
@@ -277,11 +303,56 @@ public class OptimiztionCode extends MiniGoBaseListener{
 	}
 	@Override
 	public void enterCompound_stmt(MiniGoParser.Compound_stmtContext ctx) {
-	
+		if (ctx.getParent().getParent().getChildCount() >= 5) {
+			if (ctx.parent.parent instanceof MiniGoParser.If_stmtContext) {
+				MiniGoParser.If_stmtContext test = (MiniGoParser.If_stmtContext) ctx.parent.parent;
+				if (newTexts.get(test.expr()).equals("1") || newTexts.get(test.expr()).equals("0")) {
+
+				} else {
+					indentCount++; // 들여쓰기 하나 증가
+				}
+			} else {
+				indentCount++;
+			}
+		} else {
+			indentCount++;
+		}
 	}
+
 	@Override
 	public void exitCompound_stmt(MiniGoParser.Compound_stmtContext ctx) {
-		
+		String s = "";
+		int i = 0;
+		if (ctx.getParent().getParent() instanceof MiniGoParser.If_stmtContext) {
+			if (newTexts.get(ctx.getParent().getParent().getChild(2)).equals("1")
+					|| newTexts.get(ctx.getParent().getParent().getChild(2)).equals("0")) {
+				while (ctx.stmt(i) != null) { // stmt*
+					s += newTexts.get(ctx.stmt(i)) + "\n";
+					i++;
+				}
+				newTexts.put(ctx, s);
+				MiniGoParser.If_stmtContext test = (MiniGoParser.If_stmtContext) ctx.parent.parent;
+				if (newTexts.get(test.expr()).equals("1") || newTexts.get(test.expr()).equals("0")) {
+
+				} else {
+					indentCount--; // 들여쓰기 하나 감소
+				}
+				return;
+			}
+		}
+		s = "{\n";
+		while (ctx.local_decl(i) != null) { // local_decl*
+			s += newTexts.get(ctx.local_decl(i)) + "\n";
+			i++;
+		}
+		i = 0;
+		while (ctx.stmt(i) != null) { // stmt*
+			s += newTexts.get(ctx.stmt(i)) + "\n";
+			i++;
+		}
+		indentCount--;
+		s += indent() + "}";
+		newTexts.put(ctx, s);
 	}
 	@Override
 	public void enterLocal_decl(MiniGoParser.Local_declContext ctx) {
