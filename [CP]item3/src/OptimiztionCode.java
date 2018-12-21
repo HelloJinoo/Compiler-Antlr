@@ -422,7 +422,15 @@ public class OptimiztionCode extends MiniGoBaseListener {
 				}
 			}
 			newTexts.put(ctx, op + s1);
-		} 
+		} else if (ctx.getChildCount() == 1) {
+			if (ctx.IDENT() != null) { // IDENT
+				if (lookup_Table(ctx.IDENT().getText(), location) != null) { // propagation
+					lookup_Table(ctx.IDENT().getText(), location).use = true;
+					s1 = lookup_Table(ctx.IDENT().getText(), location).rhs;
+					if (s1 != null) {
+						if(!isPreOperation((MiniGoParser.ExprContext)ctx.getParent()))
+					}
+		}
 	}
 
 	@Override
