@@ -847,7 +847,7 @@ public class OptimizationCode extends MiniGoBaseListener {
       } else { // expr ( ',' expr)*
          int i = 2;
          String s = newTexts.get(ctx.expr(0));
-         while (ctx.expr(i) != null) { // ( ',' expr)* 부분을 위한 while문
+         while (ctx.expr(i) != null) { 
             s += ","+newTexts.get(ctx.expr(i));
             i=i+2;
          }
