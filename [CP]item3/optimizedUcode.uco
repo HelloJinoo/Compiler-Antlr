@@ -1,27 +1,29 @@
            sym 1 1 1
            sym 1 2 1
-main       proc 5 2 2 
-           sym 2 1 1
-           ldc 4
-           str 2 1
+main       proc 7 2 2 
+           sym 2 1 2
+           sym 2 3 1
+null           ldc 4
+           str 2 3
            ldc 3
            fjp $$1
-           sym 2 2 1
+           sym 2 4 1
            ldc 4
            fjp $$0
-           sym 2 3 1
+           sym 2 5 1
 $$0        nop
 $$1        nop
 $$3        nop
            ldc 2
            fjp $$4
-           sym 2 4 1
+           sym 2 6 1
            ldc 4
            fjp $$2
-           sym 2 5 1
+           sym 2 7 1
 $$2        nop
            ujp $$3
 $$4        nop
+           ret
            end
            bgn 2
            ldp

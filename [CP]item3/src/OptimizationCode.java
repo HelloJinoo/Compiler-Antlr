@@ -695,7 +695,7 @@ public class OptimizationCode extends MiniGoBaseListener {
 	@Override
 	public void exitReturn_stmt(MiniGoParser.Return_stmtContext ctx) {
 		String type = ctx.getParent().getParent().getParent().getChild(0).getText();
-		if (ctx.getChildCount() == 2) { // RETURN 
+		if (ctx.getChildCount() == 1) { // RETURN 
 			if (type.equals("int")) {
 				System.out.println("Error[return type]: int형 함수와 return type이 맞지 않습니다!");
 			}

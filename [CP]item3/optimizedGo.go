@@ -2,7 +2,9 @@ var a
 var b 
 func main()  
 {
+    var k [2] 
     var c 
+null
     c = 4
     if (3) {
         var kae 
@@ -18,4 +20,5 @@ func main()
         }
     }
     
+    return
 }
