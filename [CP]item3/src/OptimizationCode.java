@@ -481,16 +481,151 @@ public class OptimizationCode extends MiniGoBaseListener {
 			}
 		} else if (ctx.getChildCount() == 6) {
 			// IDENT '[' expr ']' '=' expr
-			s1 = newTexts.get(ctx.expr(0));
+			/*s1 = newTexts.get(ctx.expr(0));
 			s2 = newTexts.get(ctx.expr(1));
 			if (lookup_Table(ctx.IDENT().getText(), location) != null)
 				lookup_Table(ctx.IDENT().getText(), location).use = true;
 			newTexts.put(ctx, ctx.getChild(0) + "[" + s1 + "] = " + s2);
-		}
+			}*/
+			s1 = newTexts.get(ctx.expr(0));
+			s2 = newTexts.get(ctx.expr(1));
+			if (lookup_Table(ctx.getChild(0).getText(), location) != null) {
+				lookup_Table(ctx.getChild(0).getText(), location).use = true;
+			}
+			for (int i = 0; i < s2.length(); i++) { // s2가 숫자인지
+				b2 = isNumber(s2.charAt(i));
+				if (!b2)
+					break;
+			}
+			if (!b2) { // s2가 숫자가 아니면
+				if (lookup_Table(s2, location) != null) {
+					String newRhs = lookup_Table(s2, location).rhs;
+					newTexts.put(ctx, ctx.getChild(0) + "[" + s1 + "] = " + newRhs);
+					update_Table(s1, newRhs, location);
+				} else {
+					newTexts.put(ctx, ctx.getChild(0) + "[" + s1 + "] = " + s2);
+					update_Table(s1, s2, location);
+				}
+			} else {
+				newTexts.put(ctx, ctx.getChild(0) + "[" + s1 + "] = " + s2);
+				update_Table(s1, s2, location);
+			}
+				newTexts.put(ctx, ctx.getChild(0) + "[" + s1 + "] = " + s2);
+			}
+			
 		}
 		
+	@Override
+	public void enterAssign_stmt(MiniGoParser.Assign_stmtContext ctx) {
 	
-
+		if(ctx.getChildCount() == 9) { // VAR IDENT ',' IDENT type_spec '=' LITERAL ',' LITERAL  
+			String varName = ctx.getChild(1).getText();
+			declare_Table(varName, location);
+			
+			varName = ctx.getChild(3).getText();
+			declare_Table(varName, location);
+			
+		}
+		else if( ctx.getChildCount() == 5) { //VAR IDENT type_spec '=' expr
+			String varName = ctx.getChild(1).getText();
+			declare_Table(varName, location);
+			
+		}
+	}
+	@Override
+	public void exitAssign_stmt(MiniGoParser.Assign_stmtContext ctx) {
+		String s1="", s2="";
+		boolean b2 = false;
+		if(ctx.getChildCount() == 9) { // VAR IDENT ',' IDENT type_spec '=' LITERAL ',' LITERAL  
+			s1 = ctx.getChild(1).getText();
+			s2 = ctx.getChild(3).getText();
+			String v1 = ctx.getChild(6).getText();
+			String v2 = ctx.getChild(8).getText();
+			lookup_Table(s1, location).use = true;
+			update_Table(s1, v1, location);
+			lookup_Table(s2, location).use = true;
+			update_Table(s2, v2, location);	
+			newTexts.put(ctx, indent()+ctx.getChild(0).getText()+" " + s1 +" , " + s2 +" "
+			+newTexts.get(ctx.type_spec()) +" = " + v1 +" , " + v2);
+		}
+		else if( ctx.getChildCount() == 5) { //VAR IDENT type_spec '=' expr
+			s1 = ctx.getChild(1).getText();
+			String v1 = newTexts.get(ctx.expr(0));
+			lookup_Table(s1, location).use = true;
+			update_Table(s1, v1, location);
+			
+			for (int i = 0; i < v1.length(); i++) { // s2가 숫자인지
+				b2 = isNumber(v1.charAt(i));
+				if (!b2)
+					break;
+			}
+			if (!b2) { // s2가 숫자가 아니면
+				if (lookup_Table(v1, location) != null) {
+					String newRhs = lookup_Table(v1, location).rhs;
+					newTexts.put(ctx, indent()+ctx.getChild(0).getText()+" "+s1 +" "+newTexts.get(ctx.type_spec())+ " = " + newRhs);
+					update_Table(s1, newRhs, location);
+				} else {
+					newTexts.put(ctx, indent()+ctx.getChild(0).getText()+" "+s1 +" "+newTexts.get(ctx.type_spec())+ " = " + v1);
+					update_Table(s1, v1, location);
+				}
+			} else {
+				newTexts.put(ctx, indent()+ctx.getChild(0).getText()+" "+s1 +" "+newTexts.get(ctx.type_spec())+ " = " + v1);
+				update_Table(s1, v1, location);
+			}
+			
+		}
+		else if( ctx.getChildCount() == 4) { //IDENT type_spec '=' expr
+			s1 = ctx.getChild(0).getText();
+			s2 = newTexts.get(ctx.expr(0));
+			if (lookup_Table(s1, location) != null)
+				lookup_Table(s1, location).use = true;
+			for (int i = 0; i < s2.length(); i++) { // s2가 숫자인지
+				b2 = isNumber(s2.charAt(i));
+				if (!b2)
+					break;
+			}
+			if (!b2) { // s2가 숫자가 아니면
+				if (lookup_Table(s2, location) != null) {
+					String newRhs = lookup_Table(s2, location).rhs;
+					newTexts.put(ctx, indent()+s1 + " = " + newRhs);
+					update_Table(s1, newRhs, location);
+				} else {
+					newTexts.put(ctx, indent()+s1 + " = " + s2);
+					update_Table(s1, s2, location);
+				}
+			} else {
+				newTexts.put(ctx, indent()+s1 + " = " + s2);
+				update_Table(s1, s2, location);
+			}
+		}
+		else if( ctx.getChildCount() == 6) { //IDENT '[' expr ']' '=' expr
+			s1 = newTexts.get(ctx.expr(0));
+			s2 = newTexts.get(ctx.expr(1));
+			if (lookup_Table(ctx.getChild(0).getText(), location) != null) {
+				lookup_Table(ctx.getChild(0).getText(), location).use = true;
+			}
+			for (int i = 0; i < s2.length(); i++) { // s2가 숫자인지
+				b2 = isNumber(s2.charAt(i));
+				if (!b2)
+					break;
+			}
+			if (!b2) { // s2가 숫자가 아니면
+				if (lookup_Table(s2, location) != null) {
+					String newRhs = lookup_Table(s2, location).rhs;
+					newTexts.put(ctx, indent()+ctx.getChild(0) + "[" + s1 + "] = " + newRhs);
+					update_Table(s1, newRhs, location);
+				} else {
+					newTexts.put(ctx, indent()+ctx.getChild(0) + "[" + s1 + "] = " + s2);
+					update_Table(s1, s2, location);
+				}
+			} else {
+				newTexts.put(ctx, indent()+ctx.getChild(0) + "[" + s1 + "] = " + s2);
+				update_Table(s1, s2, location);
+			}
+				newTexts.put(ctx, indent()+ctx.getChild(0) + "[" + s1 + "] = " + s2);
+			}
+		
+	}
 	@Override
 	public void enterFun_decl(MiniGoParser.Fun_declContext ctx) {
 		location = ctx.getChild(1).getText();
@@ -660,7 +795,7 @@ public class OptimizationCode extends MiniGoBaseListener {
 		}
 		else if (ctx.getChildCount() == 6) { // VAR IDENT '[' LITERAL ']' type_spec
 			newTexts.put(ctx, indent() + ctx.getChild(0).getText() + " "
-					+ctx.getChild(1).getText() +" ["+ ctx.getChild(3).getText() +"] "+ newTexts.get(ctx.type_spec()));
+					+ctx.getChild(1).getText() +"["+ ctx.getChild(3).getText() +"] "+ newTexts.get(ctx.type_spec()));
 		}
 	}
 
@@ -695,7 +830,7 @@ public class OptimizationCode extends MiniGoBaseListener {
 	@Override
 	public void exitReturn_stmt(MiniGoParser.Return_stmtContext ctx) {
 		String type = ctx.getParent().getParent().getParent().getChild(0).getText();
-		if (ctx.getChildCount() == 2) { // RETURN 
+		if (ctx.getChildCount() == 1) { // RETURN 
 			if (type.equals("int")) {
 				System.out.println("Error[return type]: int형 함수와 return type이 맞지 않습니다!");
 			}
