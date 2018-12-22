@@ -30,6 +30,6 @@ public class UcodeGenterator {
 	}
 	public static void main(String[] args) throws IOException {
 		optimized_miniGo();
-		MiniGo_to_optimzedUcode();
+	//	MiniGo_to_optimzedUcode();
 	}
 }

@@ -371,8 +371,14 @@ public class OptimizationCode extends MiniGoBaseListener {
             if (!b2) { // s2가 숫자가 아니면
                if (lookup_Table(s2, location) != null) {
                   String newRhs = lookup_Table(s2, location).rhs;
-                  newTexts.put(ctx, indent()+s1 + " " + op + " " + newRhs);
-                  update_Table(s1, newRhs, location);
+                  if(newRhs != null) {
+                      newTexts.put(ctx, indent()+s1 + " = " + newRhs);
+                      update_Table(s1, newRhs, location);
+                     }
+                     else {
+                   	  newTexts.put(ctx, indent()+s1 + " = " + s2);
+                         update_Table(s1, s2, location);
+                     }
                } else {
                   newTexts.put(ctx, indent()+s1 + " " + op + " " + s2);
                   update_Table(s1, s2, location);
@@ -539,8 +545,13 @@ public class OptimizationCode extends MiniGoBaseListener {
          if (!b2) { // s2가 숫자가 아니면
             if (lookup_Table(v1, location) != null) {
                String newRhs = lookup_Table(v1, location).rhs;
+               if(newRhs != null) {
                newTexts.put(ctx, indent()+ctx.getChild(0).getText()+" "+s1 +" "+newTexts.get(ctx.type_spec())+ " = " + newRhs);
                update_Table(s1, newRhs, location);
+               }
+               else {
+            	   newTexts.put(ctx, indent()+ctx.getChild(0).getText()+" "+s1 +" "+newTexts.get(ctx.type_spec())+ " = " + v1);
+               }
             } else {
                newTexts.put(ctx, indent()+ctx.getChild(0).getText()+" "+s1 +" "+newTexts.get(ctx.type_spec())+ " = " + v1);
                update_Table(s1, v1, location);
@@ -564,8 +575,14 @@ public class OptimizationCode extends MiniGoBaseListener {
          if (!b2) { // s2가 숫자가 아니면
             if (lookup_Table(s2, location) != null) {
                String newRhs = lookup_Table(s2, location).rhs;
+              if(newRhs != null) {
                newTexts.put(ctx, indent()+s1 + " = " + newRhs);
                update_Table(s1, newRhs, location);
+              }
+              else {
+            	  newTexts.put(ctx, indent()+s1 + " = " + s2);
+                  update_Table(s1, s2, location);
+              }
             } else {
                newTexts.put(ctx, indent()+s1 + " = " + s2);
                update_Table(s1, s2, location);
@@ -589,8 +606,14 @@ public class OptimizationCode extends MiniGoBaseListener {
          if (!b2) { // s2가 숫자가 아니면
             if (lookup_Table(s2, location) != null) {
                String newRhs = lookup_Table(s2, location).rhs;
+               if(newRhs != null) {
                newTexts.put(ctx, indent()+ctx.getChild(0) + "[" + s1 + "] = " + newRhs);
                update_Table(s1, newRhs, location);
+               }
+               else {
+            	   newTexts.put(ctx, indent()+ctx.getChild(0) + "[" + s1 + "] = " + s2);
+                   update_Table(s1, s2, location);
+               }
             } else {
                newTexts.put(ctx, indent()+ctx.getChild(0) + "[" + s1 + "] = " + s2);
                update_Table(s1, s2, location);
@@ -782,24 +805,24 @@ public class OptimizationCode extends MiniGoBaseListener {
          if (newTexts.get(ctx.expr()).equals("0")) {
             newTexts.put(ctx, "");
          } else if (newTexts.get(ctx.expr()).equals("1")) {
-            newTexts.put(ctx, newTexts.get(ctx.compound_stmt(0)));
+            newTexts.put(ctx, indent()+newTexts.get(ctx.compound_stmt(0)));
          } else {
             String s = ctx.getChild(0) + " (" + newTexts.get(ctx.expr())+") ";
             s += newTexts.get(ctx.compound_stmt(0));
-            newTexts.put(ctx, s);
+            newTexts.put(ctx,indent()+ s);
          }
       } else if (ctx.getChildCount() == 5) { // IF expr compound_stmt ELSE compound_stmt
          if (newTexts.get(ctx.expr()).equals("0")) {
-            newTexts.put(ctx, newTexts.get(ctx.compound_stmt(1)));
+            newTexts.put(ctx, indent()+newTexts.get(ctx.compound_stmt(1)));
          } else if (newTexts.get(ctx.expr()).equals("1")) {
-            newTexts.put(ctx, newTexts.get(ctx.compound_stmt(0)));
+            newTexts.put(ctx, indent()+newTexts.get(ctx.compound_stmt(0)));
          } else {
             String s = ctx.getChild(0) + newTexts.get(ctx.expr()) + "\n";
             s += newTexts.get(ctx.compound_stmt(0)) + "\n";
             s += indent() + ctx.getChild(3) + "\n";
             s += newTexts.get(ctx.compound_stmt(1)) + "\n";
 
-            newTexts.put(ctx, s);
+            newTexts.put(ctx,indent()+s);
          }
       }
    }
