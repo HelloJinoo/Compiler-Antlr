@@ -429,10 +429,13 @@ public class OptimizationCode extends MiniGoBaseListener {
          if (!b3) { // IDENT
             if (lookup_Table(ctx.getChild(0).getText(), location) != null) { // propagation
                lookup_Table(ctx.getChild(0).getText(), location).use = true;
-               s1 = lookup_Table(ctx.getChild(0).getText(), location).rhs;
-               if (s1 != null) {
-                  newTexts.put(ctx, s1);
+               String s3 = lookup_Table(ctx.getChild(0).getText(), location).rhs;
+               if (s3 != null) {
+                  newTexts.put(ctx, s3);
                } 
+               else {
+            	   newTexts.put(ctx, s1);
+               }
             } else {
                System.out.println("Error[variable]: 변수 "
                      + ctx.getChild(0).getText() + " 없습니다!");
