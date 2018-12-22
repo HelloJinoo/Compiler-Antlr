@@ -14,7 +14,7 @@ public class UcodeGenterator {
 		MiniGoParser parser = new MiniGoParser(tokens);
 		ParseTree tree = parser.program();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new OptimiztionCode(), tree);
+		walker.walk(new OptimizationCode(), tree);
 
 	}
 	
