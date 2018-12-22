@@ -47,17 +47,17 @@ local_decl : VAR IDENT type_spec//o
              
 expr      : (LITERAL|IDENT)
          | '(' expr ')'
-         | IDENT '[' expr ']' 
-         | IDENT '(' args ')' 
-         | FMT '.' IDENT '(' args ')'
-         | op=('-'|'+'|'--'|'++'|'!') expr  //o
+         | IDENT '[' expr ']' //o
+         | IDENT '(' args ')' //o
+         | FMT '.' IDENT '(' args ')' //o
+         | op=('-'|'+'|'--'|'++'|'!') expr  
          | left=expr op=('*'|'/'|'%') right=expr //o
          | left=expr op=('+'|'-') right=expr //o
          | left=expr op=(EQ|NE|LE|'<'|GE|'>'|AND|OR) right=expr//o
-         | LITERAL ',' LITERAL
+         | LITERAL ',' LITERAL //o
          | IDENT '=' expr //o
-         | IDENT '[' expr ']' '=' expr;
-args      : expr (',' expr) * 
+         | IDENT '[' expr ']' '=' expr;//o
+args      : expr (',' expr) * //o
          | ;
          
 VOID      : 'void'     ;

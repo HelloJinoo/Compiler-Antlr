@@ -587,7 +587,7 @@ public class OptimizationCode extends MiniGoBaseListener {
 			newTexts.put(ctx, "");
 			return;
 		}
-		s2 = indent() + "{\n    " + newTexts.get(ctx.expr()) + "\n"+ indent() + "}";
+		s2 = indent()+ newTexts.get(ctx.compound_stmt()) +"\n"+ indent();
 		newTexts.put(ctx, ctx.getChild(0).getText() + " (" + s1 + ")\n" + s2);
 	}
 
@@ -672,7 +672,7 @@ public class OptimizationCode extends MiniGoBaseListener {
 			} else if (newTexts.get(ctx.expr()).equals("1")) {
 				newTexts.put(ctx, newTexts.get(ctx.compound_stmt(0)));
 			} else {
-				String s = ctx.getChild(0) + " (" + newTexts.get(ctx.expr());
+				String s = ctx.getChild(0) + " (" + newTexts.get(ctx.expr())+") ";
 				s += newTexts.get(ctx.compound_stmt(0));
 				newTexts.put(ctx, s);
 			}
